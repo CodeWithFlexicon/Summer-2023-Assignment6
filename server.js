@@ -92,7 +92,14 @@ const recipes = [
 
 //Implement the middleware so we can access the data passed
 app.use((req, res, next) => {
-  console.log(`Request: ${req.method} ${res.originalURL}`);
+  console.log(`Request: ${req.method} ${res.originalUrl}`);
+  next();
+});
+
+app.use((req, res, next) => {
+  res.on("finish", () => {
+    console.log(`Request: ${req.method} ${req.originalUrl} ${req.statusCode}`);
+  });
   next();
 });
 
@@ -140,7 +147,7 @@ app.delete("/recipes/:id", (req, res) => {
   const recipeIndex = recipes.findIndex((recipe) => recipe.id === recipeId);
   if (recipeIndex !== -1) {
     recipes.splice(recipeIndex, 1);
-    res.status(204).send();
+    res.status(204).send({ message: "Recipe deleted successfully" });
   } else {
     res.status(404).send({ message: "Recipe not found" });
   }
